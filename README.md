@@ -29,11 +29,23 @@ Para la realización de esta práctica he utilizado el siguiente entorno y hardw
 | Rol | Sistema |
 |---|---|
 | Atacante | Kali Linux |
-| Víctima | Dispositivo Cliente (Windows 10 / Android) |
+| Víctima | Dispositivo Cliente (Windows 10 / Dispositivo Móvil) |
 
 - Adaptador de red inalámbrico en modo Monitor/AP.
 - Suplantación de red corporativa 802.1x.
+- Interacción manual de la víctima ante alerta de certificado
 
 ## 5. Pasos para realizar el ataque
 
 ### Paso 1: Verificación de la tarjeta de red
+Antes de iniciar, es obligatorio comprobar viendo la salida del comando `iw list` y observando si la tarjeta soporta modo AP. Esto es vital para que pueda funcionar como un punto de acceso malicioso.
+
+```bash
+# Comando para listar las capacidades de la interfaz
+iw list | less
+
+### Paso 2: Instalación de las herramientas necesarias
+Para realizar la suplantación de la red corporativa y capturar los hashes, usaremos la herramienta hostapd-wpe (Wireless Pwnage Edition) disponible en los repositorios oficiales de Kali Linux.
+
+# Comando para instalar hostapd-wpe
+sudo apt update && sudo apt install hostapd-wpe -y
