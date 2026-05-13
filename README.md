@@ -92,7 +92,7 @@ En el momento en que la víctima pulsa "Confiar" y acepta el certificado malicio
 
 La herramienta logra interceptar la comunicación y nos muestra por pantalla el nombre de usuario y los hashes capturados (*Challenge* y *Response* de MSCHAPv2). Además, nos proporciona directamente la estructura del comando (para `john` o `asleap`) que necesitaremos en la siguiente fase para crackear la contraseña.
 
-![Verificación de la captura del hash](capturas/captura_mschapv2_6.PNG)
+![Verificación de la captura del hash](proyecto/captura_mschapv2_6.PNG)
 
 ## 6. Captura y obtención de credenciales (Crackeo)
 
