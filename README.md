@@ -44,6 +44,8 @@ Antes de iniciar, es obligatorio comprobar viendo la salida del comando `iw list
 # Comando para listar las capacidades de la interfaz
 iw list | less
 ```
+![Verificación de modo AP](proyecto/iw_list_ap.PNG)
+
 ### Paso 2: Instalación de las herramientas necesarias
 Para realizar la suplantación de la red corporativa y capturar los hashes, usaremos la herramienta hostapd-wpe (Wireless Pwnage Edition) disponible en los repositorios oficiales de Kali Linux.
 
@@ -51,14 +53,18 @@ Para realizar la suplantación de la red corporativa y capturar los hashes, usar
 # Comando para instalar hostapd-wpe
 sudo apt update && sudo apt install hostapd-wpe -y
 ```
+![Instalación herramienta hostapd-wpe](proyecto/instalacion_hostapdwpe2.PNG)
 
 ### Paso 3: Configuración del AP falso
-Para que el ataque sea efectivo, nuestro punto de acceso debe suplantar exactamente la identidad de la red objetivo. Debemos editar el archivo de configuración de `hostapd-wpe` para establecer el SSID correcto (en nuestro caso, la red del aula `CETI` o `WIFI_HE`) y definir nuestra interfaz de red inalámbrica.
+Para que el ataque sea efectivo, nuestro punto de acceso debe suplantar exactamente la identidad de la red objetivo. Debemos editar el archivo de configuración de `hostapd-wpe` para establecer el SSID correcto (en nuestro caso, la red del aula `CETI`) y definir nuestra interfaz de red inalámbrica.
 
 ```bash
 # Editamos el archivo de configuración principal
 sudo nano /etc/hostapd-wpe/hostapd-wpe.conf
 ```
+![Configuración del archivo conf](proyecto/config_interfaz3.PNG)
+
+![Configuración del archivo conf](proyecto/configuracion_ssid4.PNG)
 
 ### Paso 4: Ejecución del ataque
 Con el archivo configurado, procedemos a levantar nuestro punto de acceso falso. Al ejecutar el siguiente comando, nuestra tarjeta de red comenzará a radiar la red suplantada y la herramienta se quedará a la escucha, esperando que los clientes intenten autenticarse.
@@ -68,6 +74,8 @@ Con el archivo configurado, procedemos a levantar nuestro punto de acceso falso.
 sudo hostapd-wpe /etc/hostapd-wpe/hostapd-wpe.conf
 ```
 
+![Ejecución del ataque](proyecto/realizacion_ataque5.PNG)
+
 ### Paso 5: Conexión del cliente y alerta de seguridad en iOS
 
 Para simular el ataque, utilizamos un dispositivo cliente (iPhone 13). El objetivo es que la víctima intente conectarse a nuestro punto de acceso falso, ya sea manualmente o de forma automática si tenía la red guardada previamente.
@@ -76,7 +84,7 @@ Al intentar establecer la conexión, el sistema operativo iOS detecta que el cer
 
 Para que el ataque continúe y la contraseña sea enviada, la víctima debe ser engañada y pulsar en **"Confiar"** (Trust).
 
-![Advertencia de certificado en iPhone 13](capturas/iphone_certificado.PNG)
+![Advertencia de certificado en iPhone 13](proyecto/certificado_dudoso.png)
 
 ### Paso 6: Captura del Challenge/Response (MSCHAPv2)
 
@@ -84,7 +92,7 @@ En el momento en que la víctima pulsa "Confiar" y acepta el certificado malicio
 
 La herramienta logra interceptar la comunicación y nos muestra por pantalla el nombre de usuario y los hashes capturados (*Challenge* y *Response* de MSCHAPv2). Además, nos proporciona directamente la estructura del comando (para `john` o `asleap`) que necesitaremos en la siguiente fase para crackear la contraseña.
 
-![Verificación de la captura del hash](capturas/captura_mschapv2.PNG)
+![Verificación de la captura del hash](capturas/captura_mschapv2_6.PNG)
 
 ## 6. Captura y obtención de credenciales (Crackeo)
 
@@ -111,3 +119,5 @@ john --wordlist=/usr/share/wordlists/rockyou.txt --format=netntlm hash.txt
 Como la contraseña utilizada por la víctima se encontraba dentro de nuestro diccionario, la herramienta logra calcular la colisión del hash en cuestión de segundos, mostrándonos la credencial en texto plano.
 
 Con esto, se demuestra el compromiso total de la cuenta de dominio del usuario, permitiendo a un atacante acceder a la intranet y recursos corporativos de la organización.
+
+![Contraseña en texto plano obtenida](proyecto/contraseña_crackeada_7.PNG)
