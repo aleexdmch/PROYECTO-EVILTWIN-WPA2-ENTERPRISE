@@ -1,7 +1,7 @@
 # PROYECTO: Ataque Evil Twin contra WPA2 Enterprise
 **Asignatura:** Hacking Ético  
 **Práctica:** 3 UD 2 - Proyecto
-**Link Video** https://drive.google.com/file/d/1UOKbvtcbT80VORz4m3XSZ9tKNzdvC7B8/view?usp=sharing
+**Link Video**
 
 ---
 
