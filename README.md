@@ -27,9 +27,9 @@ Para la realización de esta práctica he utilizado el siguiente entorno y hardw
 ## 4. Escenario del laboratorio
 
 | Rol | Sistema |
-|---|---|
-| Atacante | Kali Linux |
-| Víctima | Dispositivo Cliente (Windows 10 / Dispositivo Móvil) |
+| :--- | :--- |
+| **Atacante** | Kali Linux |
+| **Víctima** | Dispositivo Móvil (iPhone 13) |
 
 - Adaptador de red inalámbrico en modo Monitor/AP.
 - Suplantación de red corporativa 802.1x.
@@ -105,7 +105,7 @@ La herramienta `hostapd-wpe` nos proporciona directamente la cadena de texto for
 
 ```bash
 # Guardamos el hash capturado en un archivo local
- echo "testuser:$NETNTLM$5dc3a802c2365576$b53de16e508eb95891c0eb62e40bbc00f6665963cfdb3d61" > hash.txt
+ echo 'testuser:$NETNTLM$5dc3a802c2365576$b53de16e508eb95891c0eb62e40bbc00f6665963cfdb3d61' > hash.txt
 ```
 
 ### Paso 2: Ejecución del ataque de diccionario con John The Ripper
@@ -121,3 +121,39 @@ Como la contraseña utilizada por la víctima se encontraba dentro de nuestro di
 Con esto, se demuestra el compromiso total de la cuenta de dominio del usuario, permitiendo a un atacante acceder a la intranet y recursos corporativos de la organización.
 
 ![Contraseña en texto plano obtenida](proyecto/contraseña_crackeada_7.PNG)
+
+## 7. Conclusiones y Medidas de Mitigación
+
+El ataque realizado demuestra que, aunque WPA2-Enterprise es significativamente más seguro que WPA2-PSK, la seguridad del ecosistema depende de la correcta configuración tanto del servidor RADIUS como de los suplicantes (clientes). El éxito de un Evil Twin en este entorno se basa en la **validación inadecuada de certificados** por parte del usuario o del sistema operativo.
+
+A continuación, se detallan las estrategias de mitigación desde tres enfoques distintos:
+
+## A. Mitigaciones a Nivel de Infraestructura (Red)
+
+1.  **Migración a EAP-TLS (Autenticación basada en Certificados):**
+    * **Descripción:** Es el estándar de oro en seguridad Wi-Fi corporativa. En lugar de utilizar usuario y contraseña (PEAP-MSCHAPv2), cada dispositivo posee un certificado digital único.
+    * **Efectividad:** Aunque un atacante suplante el SSID, no podrá completar el handshake de autenticación porque no posee la clave privada del certificado del servidor legítimo, y el cliente tampoco enviará credenciales que puedan ser crackeadas por diccionario.
+2.  **Sistemas de Prevención de Intrusiones Inalámbricas (WIPS):**
+    * **Descripción:** Desplegar sensores que monitorean el espectro radioeléctrico en busca de anomalías.
+    * **Efectividad:** Un WIPS detecta automáticamente la aparición de un AP con el mismo SSID (Rogue AP) o con una dirección MAC no autorizada, pudiendo lanzar ataques de desautenticación automáticos contra el AP malicioso para neutralizarlo.
+3.  **Protección de Tramas de Gestión (802.11w):**
+    * **Descripción:** Cifra las tramas de gestión (como los paquetes de desautenticación).
+    * **Efectividad:** Dificulta que el atacante fuerce a los clientes a desconectarse del AP legítimo para que se unan al Evil Twin.
+
+## B. Mitigaciones a Nivel de Dispositivo Final (Endpoint)
+
+1.  **Fijación de Certificados mediante MDM o GPO:**
+    * **Descripción:** Utilizar sistemas de gestión (como Intune, Jamf o políticas de grupo en Windows) para pre-configurar el perfil Wi-Fi en los dispositivos.
+    * **Efectividad:** Se fuerza al dispositivo a confiar **exclusivamente** en la huella digital (thumbprint) del certificado del servidor RADIUS legítimo. Esto elimina la posibilidad de que el usuario vea el aviso de "Confiar" y pueda aceptarlo manualmente; el dispositivo simplemente rechazará la conexión.
+2.  **Desactivación de la Autoconexión (Auto-Join):**
+    * **Descripción:** Configurar los dispositivos para que no se conecten automáticamente a redes conocidas.
+    * **Efectividad:** Reduce la superficie de exposición, ya que el dispositivo no intentará el intercambio de identidad en segundo plano al detectar el SSID suplantado.
+
+## C. Mitigaciones Organizacionales (Factor Humano)
+
+1.  **Programas de Security Awareness:**
+    * **Descripción:** Formación continua sobre ingeniería social y seguridad inalámbrica.
+    * **Efectividad:** Un usuario entrenado reconocerá que un aviso de "Certificado no confiable" en una red que usa a diario es una señal de alerta crítica y notificará al departamento de IT en lugar de pulsar "Confiar".
+2.  **Política de Contraseñas Robustas:**
+    * **Descripción:** Forzar el uso de contraseñas de alta complejidad y longitud.
+    * **Efectividad:** Dado que el ataque MSCHAPv2 capturado requiere un crackeo por diccionario o fuerza bruta, una contraseña robusta hace que el tiempo y los recursos necesarios para obtenerla en claro sean inviables para el atacante.
